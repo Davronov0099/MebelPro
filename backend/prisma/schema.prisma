@@ -1,0 +1,267 @@
+// Prisma Schema for MebelPro
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USERS TABLE
+// ============================================
+model User {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(100)
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  role      UserRole @default(admin)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  sales          Sale[]
+  queueCarts     QueueCart[]
+  activityLogs   ActivityLog[]
+  userSessions   UserSession[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  admin
+  kassir
+  yordamchi
+  omborchi
+}
+
+// ============================================
+// PRODUCTS TABLE
+// ============================================
+model Product {
+  id          String   @id @default(uuid())
+  code        String   @unique @db.VarChar(10)
+  name        String   @db.VarChar(255)
+  category    String   @db.VarChar(100)
+  image       String   @db.Text
+  costPrice   Decimal  @map("cost_price") @db.Decimal(10, 2)
+  salePrice   Decimal  @map("sale_price") @db.Decimal(10, 2)
+  quantity    Int      @default(0)
+  description String   @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  orderItems     OrderItem[]
+  saleItems      SaleItem[]
+  queueCartItems QueueCartItem[]
+
+  @@map("products")
+}
+
+// ============================================
+// ORDERS TABLE
+// ============================================
+model Order {
+  id             String       @id @default(uuid())
+  orderNumber    String       @unique @map("order_number") @db.VarChar(20)
+  customerName   String       @map("customer_name") @db.VarChar(100)
+  customerPhone  String       @map("customer_phone") @db.VarChar(20)
+  totalPrice     Decimal      @map("total_price") @db.Decimal(10, 2)
+  deliveryType   DeliveryType @map("delivery_type")
+  address        String?      @db.Text
+  status         OrderStatus  @default(new)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  items OrderItem[]
+
+  @@map("orders")
+}
+
+enum DeliveryType {
+  courier
+  pickup
+}
+
+enum OrderStatus {
+  new
+  preparing
+  ready
+  onway
+  delivered
+}
+
+// ============================================
+// ORDER ITEMS TABLE
+// ============================================
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String   @map("order_id")
+  productId String   @map("product_id")
+  quantity  Int
+  price     Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+// ============================================
+// SALES TABLE
+// ============================================
+model Sale {
+  id             String   @id @default(uuid())
+  saleNumber     String   @unique @map("sale_number") @db.VarChar(20)
+  customerName   String   @map("customer_name") @db.VarChar(100)
+  customerPhone  String   @map("customer_phone") @db.VarChar(20)
+  totalPrice     Decimal  @map("total_price") @db.Decimal(10, 2)
+  sellerId       String   @map("seller_id")
+  sellerName     String   @map("seller_name") @db.VarChar(100)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  // Relations
+  seller User       @relation(fields: [sellerId], references: [id])
+  items  SaleItem[]
+
+  @@map("sales")
+}
+
+// ============================================
+// SALE ITEMS TABLE
+// ============================================
+model SaleItem {
+  id        String   @id @default(uuid())
+  saleId    String   @map("sale_id")
+  productId String   @map("product_id")
+  quantity  Int
+  price     Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("sale_items")
+}
+
+// ============================================
+// EMPLOYEES TABLE
+// ============================================
+model Employee {
+  id        String         @id @default(uuid())
+  name      String         @db.VarChar(100)
+  phone     String         @db.VarChar(20)
+  address   String         @db.Text
+  salary    Decimal        @db.Decimal(10, 2)
+  hireDate  DateTime       @map("hire_date") @db.Date
+  status    EmployeeStatus @default(active)
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  @@map("employees")
+}
+
+enum EmployeeStatus {
+  active
+  rest
+  sick
+}
+
+// ============================================
+// QUEUE CARTS TABLE (Yordamchi -> Kassir)
+// ============================================
+model QueueCart {
+  id            String          @id @default(uuid())
+  assistantId   String          @map("assistant_id")
+  assistantName String          @map("assistant_name") @db.VarChar(100)
+  customerName  String?         @map("customer_name") @db.VarChar(100)
+  customerPhone String?         @map("customer_phone") @db.VarChar(20)
+  totalPrice    Decimal         @map("total_price") @db.Decimal(10, 2)
+  status        QueueCartStatus @default(pending)
+  approvedBy    String?         @map("approved_by") @db.VarChar(50)
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+
+  // Relations
+  assistant User            @relation(fields: [assistantId], references: [id])
+  items     QueueCartItem[]
+
+  @@map("queue_carts")
+}
+
+enum QueueCartStatus {
+  pending
+  sent_to_cashier
+}
+
+// ============================================
+// QUEUE CART ITEMS TABLE
+// ============================================
+model QueueCartItem {
+  id           String   @id @default(uuid())
+  queueCartId  String   @map("queue_cart_id")
+  productId    String   @map("product_id")
+  quantity     Int
+  price        Decimal  @db.Decimal(10, 2)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  queueCart QueueCart @relation(fields: [queueCartId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id])
+
+  @@map("queue_cart_items")
+}
+
+// ============================================
+// ACTIVITY LOGS TABLE
+// ============================================
+model ActivityLog {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  userName  String           @map("user_name") @db.VarChar(100)
+  userEmail String           @map("user_email") @db.VarChar(255)
+  action    String           @db.VarChar(255)
+  details   String           @db.Text
+  type      ActivityLogType
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("activity_logs")
+}
+
+enum ActivityLogType {
+  login
+  logout
+  order
+  cart
+  view
+  other
+}
+
+// ============================================
+// USER SESSIONS TABLE
+// ============================================
+model UserSession {
+  id         String    @id @default(uuid())
+  userId     String    @map("user_id")
+  userName   String    @map("user_name") @db.VarChar(100)
+  userEmail  String    @map("user_email") @db.VarChar(255)
+  loginTime  DateTime  @map("login_time")
+  logoutTime DateTime? @map("logout_time")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("user_sessions")
+}
