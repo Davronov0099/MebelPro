@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useApiStore } from '@/stores/apiStore';
-import { useStore } from '@/stores/store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ShoppingCart, X, Plus, Minus, Zap } from 'lucide-react';
 import { toast } from 'sonner';
@@ -11,10 +10,7 @@ const formatSom = (n: number) => n.toLocaleString('uz-UZ') + ' so\'m';
 const categories = ['Barchasi', 'Divanlar', 'Stollar', 'Stullar', 'Shkaflar', 'Karavotlar'];
 
 const Catalog = () => {
-  // Products from API
-  const { products, fetchProducts } = useApiStore();
-  // Cart from localStorage (user-specific)
-  const addToCart = useStore(s => s.addToCart);
+  const { products, fetchProducts, addToCart } = useApiStore();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('Barchasi');
   const [selected, setSelected] = useState<any | null>(null);
@@ -40,13 +36,7 @@ const Catalog = () => {
   );
 
   const handleAdd = (product: Product, quantity: number) => {
-    // Convert API Product to Store Product format
-    const storeProduct = {
-      ...product,
-      image: product.image || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop',
-      description: product.description || '',
-    };
-    addToCart(storeProduct as any, quantity);
+    addToCart(product, quantity);
     toast.success(`${product.name} savatga qo'shildi!`);
     setSelected(null);
     setQty(1);

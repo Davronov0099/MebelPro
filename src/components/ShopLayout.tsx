@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { useStore } from '@/stores/store';
+import { useApiStore } from '@/stores/apiStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, User, LogOut, Package, Info, Menu, X, Mail, Clock, Sun, Moon, Globe } from 'lucide-react';
 import { useState } from 'react';
@@ -7,13 +7,13 @@ import { formatDate } from '@/stores/store';
 import { useTranslation } from '@/lib/translations';
 
 const ShopLayout = () => {
-  const cart = useStore(s => s.cart);
-  const user = useStore(s => s.user);
-  const theme = useStore(s => s.theme);
-  const language = useStore(s => s.language);
-  const logout = useStore(s => s.logout);
-  const setTheme = useStore(s => s.setTheme);
-  const setLanguage = useStore(s => s.setLanguage);
+  const cart = useApiStore(s => s.cart);
+  const user = useApiStore(s => s.user);
+  const theme = useApiStore(s => s.theme);
+  const language = useApiStore(s => s.language);
+  const logout = useApiStore(s => s.logout);
+  const setTheme = useApiStore(s => s.setTheme);
+  const setLanguage = useApiStore(s => s.setLanguage);
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileNav, setMobileNav] = useState(false);

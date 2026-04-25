@@ -1,11 +1,15 @@
-import { useStore, formatSom } from '@/stores/store';
+import { useApiStore } from '@/stores/apiStore';
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Search } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+const formatSom = (n: number) => n.toLocaleString('uz-UZ') + ' so\'m';
 
 const Market = () => {
-  const products = useStore(s => s.products);
+  const { products, fetchProducts } = useApiStore();
   const [search, setSearch] = useState('');
+
+  useEffect(() => { fetchProducts(); }, []);
 
   const inStock = products.filter(p => p.quantity > 0);
   const filtered = inStock.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
