@@ -33,8 +33,13 @@ export const createApp = (): Application => {
           return callback(null, true);
         }
 
-        // In production: only allow configured FRONTEND_URL
+        // Allow configured FRONTEND_URL
         if (origin === config.cors.origin) {
+          return callback(null, true);
+        }
+
+        // Allow all Vercel preview/production URLs for this project
+        if (/^https:\/\/mebelpro(-[a-z0-9]+)*\.vercel\.app$/.test(origin)) {
           return callback(null, true);
         }
 

@@ -21,6 +21,7 @@ import Assistant from "./pages/admin/Assistant";
 import CashierQueue from "./pages/admin/CashierQueue";
 import KassirQueue from "./pages/kassir/KassirQueue";
 import KassirCustomers from "./pages/kassir/KassirCustomers";
+import KassirSales from "./pages/kassir/KassirSales";
 import ShopLayout from "./components/ShopLayout";
 import Catalog from "./pages/shop/Catalog";
 import Cart from "./pages/shop/Cart";
@@ -83,8 +84,8 @@ const App = () => {
               )}
               {user?.role === 'kassir' && (
                 <>
-                  <Route index element={<Sales />} />
-                  <Route path="sales" element={<Sales />} />
+                  <Route index element={<KassirSales />} />
+                  <Route path="sales" element={<KassirSales />} />
                   <Route path="kassir-queue" element={<KassirQueue />} />
                   <Route path="customers" element={<KassirCustomers />} />
                 </>

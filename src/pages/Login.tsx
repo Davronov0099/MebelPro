@@ -127,12 +127,11 @@ const Login = () => {
                 </button>
               </div>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center">
               <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
                 <input type="checkbox" className="rounded border-border" />
                 Eslab qol
               </label>
-              <button type="button" className="text-sm text-gold hover:underline">Parolni unutdim?</button>
             </div>
             <button
               type="button"
